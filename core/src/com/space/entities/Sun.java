@@ -12,10 +12,11 @@ public class Sun extends SpaceObject {
     //y = 1 = радиус солнца = 6,9551 * 10^8
 
 
-    public Sun(Vector2 position, float radius, float mass, String name) {
-        super(position, radius, mass, name);
+    public Sun(Vector2 position, float radius, String name) {
+        super(position, radius, name);
         color = Color.GOLD;
-        this.radius *= Constants.sunToEarthRadius * 10;
+        this.mass = (float) (0.97 * Math.pow(this.radius, 0.676));
+        this.radius *= Constants.sunToEarthRadius;
         this.mass *= Constants.sunToEarthMass;
         System.out.println(this.radius);
     }

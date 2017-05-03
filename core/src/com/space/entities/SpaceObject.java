@@ -6,10 +6,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.space.tools.Constants;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public abstract class SpaceObject extends Entity
 {
     protected Vector2 startPosition;
+
     protected float radius;
     protected Color color;
     protected float mass;
@@ -18,17 +20,20 @@ public abstract class SpaceObject extends Entity
 
     protected SpaceObject parentObject;
     protected float distanceFromParent;
-    protected float alpha = 0;
+    protected float alpha;
     protected ArrayList<SpaceObject> children = new ArrayList<>();
-    double v;
+    protected double v;
+    protected double rotationTime = 0;
+
+    //ускорение времени
+    protected double a = 1;
 
 
-    public SpaceObject(Vector2 position, float radius, float mass, String name) {
+    public SpaceObject(Vector2 position, float radius, String name) {
         super(position);
 
-        startPosition = position;
-        this.radius = radius;
-        this.mass = mass;
+        startPosition = this.position;
+        this.radius = radius * Constants.radiusScale;
         this.name = name;
     }
 
@@ -42,7 +47,7 @@ public abstract class SpaceObject extends Entity
 
             position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
             position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
-            alpha += v;
+            alpha += v * a;
         }
 
         if (children.size() != 0) {
@@ -64,17 +69,19 @@ public abstract class SpaceObject extends Entity
         }
     }
 
-    public void addChildren(SpaceObject object) {
+    public void addChildren(SpaceObject object, double rotationTime) {
         children.add(object);
         object.setUpdating(true);
+        object.rotationTime = rotationTime;
         object.setParent(this);
     }
 
-    public void addChildrenRelatively(SpaceObject object) {
+    public void addChildrenRelatively(SpaceObject object, double rotationTime) {
         children.add(object);
         object.setUpdating(true);
-        object.setPosition(new Vector2(this.position.x + this.radius + object.position.x, this.position.y + object.position.y));
-        object.setStartPosition(new Vector2(this.startPosition.x + this.radius + object.startPosition.x, this.startPosition.y + object.startPosition.y));
+        object.setPosition(new Vector2(this.position.x + this.getRadius() * 2 + object.position.x + object.radius, this.position.y + object.position.y));
+        object.setStartPosition(object.getPosition());
+        object.rotationTime = rotationTime;
         object.setParent(this);
     }
 
@@ -85,14 +92,16 @@ public abstract class SpaceObject extends Entity
     public void setParent(SpaceObject object) {
         parentObject = object;
         distanceFromParent = Math.abs(parentObject.position.x + parentObject.radius - position.x);
+        System.out.println(name + "\t" + parentObject.name + "\t" + distanceFromParent);
 
-        if (mass / object.getMass() > 0.01 && mass / object.getMass() < 100) {
-            v = Math.sqrt(Constants.G * (mass + object.getMass()) / distanceFromParent) * 60 * 36 * 24;
+        v = 360 / rotationTime / 60 / 24;
+
+        /*if (mass / object.getMass() > 0.01 && mass / object.getMass() < 100) {
+            v = (mass + object.getMass()) / distanceFromParent  * 60;
         } else {
-            v = Math.sqrt(Constants.G * object.getMass() / distanceFromParent) * 60 * 24;
-        }
+            v = Constants.G * object.getMass() / distanceFromParent * 60;
+        }*/
         System.out.println(getName() + " " + v);
-        //v = 1000/(distanceFromParent * distanceFromParent);
 
     }
 
@@ -121,5 +130,28 @@ public abstract class SpaceObject extends Entity
 
     public float getMass() {
         return mass;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setAcceleration(int a) {
+        this.a = a;
+
+        if (children.size() != 0) {
+            for (SpaceObject child : children) {
+                child.setAcceleration(a);
+            }
+        }
+    }
+
+    @Override
+    public void setUpdating(boolean isUpdating) {
+        super.setUpdating(isUpdating);
+        if (isUpdating) {
+            Random random = new Random();
+            alpha = random.nextInt(361);
+        }
     }
 }
