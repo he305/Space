@@ -1,14 +1,9 @@
 package com.space.gamestates;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.space.entities.Entity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class GameState
 {
-    protected List<Entity> entities = new ArrayList<>();
     protected String gameStateName;
 
     public GameState()
@@ -19,20 +14,8 @@ public abstract class GameState
 
     protected abstract void init();
 
-    public void draw(SpriteBatch batch)
-    {
-        for (Entity en : entities)
-        {
-            en.draw(batch);
-        }
-    }
+    public abstract void draw(SpriteBatch batch);
 
-    public void update()
-    {
-        for (Entity en : entities)
-        {
-            en.update();
-        }
-    }
+    public abstract void update();
 
 }

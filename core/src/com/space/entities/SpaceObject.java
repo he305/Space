@@ -1,58 +1,125 @@
 package com.space.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.space.tools.Constants;
 
-public class SpaceObject extends Entity
+import java.util.ArrayList;
+
+public abstract class SpaceObject extends Entity
 {
+    protected Vector2 startPosition;
+    protected float radius;
+    protected Color color;
+    protected float mass;
 
-    ShapeRenderer renderer;
-    Vector2 startPosition;
-    int r;
+    protected String name;
 
-    float alpha = 0;
+    protected SpaceObject parentObject;
+    protected float distanceFromParent;
+    protected float alpha = 0;
+    protected ArrayList<SpaceObject> children = new ArrayList<>();
+    double v;
 
-    public SpaceObject(Vector2 position, Vector2 size) {
+
+    public SpaceObject(Vector2 position, float radius, float mass, String name) {
         super(position);
 
         startPosition = position;
-        renderer = new ShapeRenderer();
-        renderer.setAutoShapeType(true);
-        renderer.setColor(Color.GOLD);
-        r = (int)size.x;
-        /*
-        pixmap = new Pixmap((int)size.x, (int)size.y, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.GOLD);
-        pixmap.fillCircle((int)position.x, (int)position.y, 10);
-        texture = new Texture(pixmap);
-        sprite = new Sprite(texture);
-        sprite.setPosition(position.x, position.y);*/
+        this.radius = radius;
+        this.mass = mass;
+        this.name = name;
     }
 
     @Override
     public void update() {
+        //Spinning
         if (isUpdating)
         {
             if (alpha >= 360)
                 alpha = 0;
 
-            position.x = startPosition.x + (float)(10 * Math.cos(Math.toRadians(alpha)));
-            position.y = startPosition.y + (float)(10 * Math.sin(Math.toRadians(alpha)));
-            System.out.println(position.x + " " + position.y);
-            alpha += 0.000001;
+            position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
+            position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
+            alpha += v;
+        }
+
+        if (children.size() != 0) {
+            for (SpaceObject object : children) {
+                object.update();
+            }
         }
     }
 
-    @Override
-    public void draw(SpriteBatch spriteBatch)
+    public void draw(ShapeRenderer renderer)
     {
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.circle(position.x, position.y, r);
-        renderer.end();
+        renderer.setColor(color);
+        renderer.circle(position.x, position.y, radius);
+
+        if (children.size() != 0) {
+            for (SpaceObject object : children) {
+                object.draw(renderer);
+            }
+        }
+    }
+
+    public void addChildren(SpaceObject object) {
+        children.add(object);
+        object.setUpdating(true);
+        object.setParent(this);
+    }
+
+    public void addChildrenRelatively(SpaceObject object) {
+        children.add(object);
+        object.setUpdating(true);
+        object.setPosition(new Vector2(this.position.x + this.radius + object.position.x, this.position.y + object.position.y));
+        object.setStartPosition(new Vector2(this.startPosition.x + this.radius + object.startPosition.x, this.startPosition.y + object.startPosition.y));
+        object.setParent(this);
+    }
+
+    public SpaceObject getParent() {
+        return parentObject;
+    }
+
+    public void setParent(SpaceObject object) {
+        parentObject = object;
+        distanceFromParent = Math.abs(parentObject.position.x + parentObject.radius - position.x);
+
+        if (mass / object.getMass() > 0.01 && mass / object.getMass() < 100) {
+            v = Math.sqrt(Constants.G * (mass + object.getMass()) / distanceFromParent) * 60 * 36 * 24;
+        } else {
+            v = Math.sqrt(Constants.G * object.getMass() / distanceFromParent) * 60 * 24;
+        }
+        System.out.println(getName() + " " + v);
+        //v = 1000/(distanceFromParent * distanceFromParent);
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public SpaceObject getChildrenByName(String name) {
+        if (children.size() != 0) {
+            for (SpaceObject child : children) {
+                if (child.getName() == name) {
+                    return child;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position;
+    }
+
+    public void setStartPosition(Vector2 startPosition) {
+        this.startPosition = position;
+    }
+
+    public float getMass() {
+        return mass;
     }
 }

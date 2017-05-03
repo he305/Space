@@ -1,48 +1,33 @@
 package com.space.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 public class Planet extends SpaceObject{
-    protected Entity sun;
-    protected float distanceFromSun;
 
-    double v;
 
-    public Planet(Vector2 position, Vector2 size, Entity sun) {
-        super(position, size);
-
-        isUpdating = true;
-        this.sun = sun;
-        distanceFromSun = Math.abs(sun.position.x - position.x);
-        v = 1000/(distanceFromSun*distanceFromSun);
+    public Planet(Vector2 position, float radius, float mass, String name) {
+        super(position, radius, mass, name);
+        color = Color.BROWN;
+        this.radius *= 10;
+        this.mass *= 10;
     }
 
     @Override
-    public void update() {
-        if (isUpdating)
-        {
-            if (alpha >= 360)
-                alpha = 0;
-
-            position.x = sun.getPosition().x + (float)(distanceFromSun * Math.cos(Math.toRadians(alpha)));
-            position.y = sun.getPosition().y + (float)(distanceFromSun * Math.sin(Math.toRadians(alpha)));
-            System.out.println(position.x + " " + position.y);
-            alpha += v;
-        }
-    }
-
-    @Override
-    public void draw(SpriteBatch batch)
+    public void draw(ShapeRenderer renderer)
     {
-        renderer.setColor(Color.CYAN);
-        renderer.begin();
-        renderer.circle(sun.position.x, sun.position.y, distanceFromSun);
         renderer.end();
-        renderer.setColor(Color.GOLD);
 
-        super.draw(batch);
+        renderer.begin();
+        renderer.setColor(Color.CYAN);
+        renderer.circle(parentObject.position.x, parentObject.position.y, distanceFromParent);
+        renderer.end();
+
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        super.draw(renderer);
 
     }
+
 }
