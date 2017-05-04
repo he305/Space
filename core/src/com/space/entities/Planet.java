@@ -11,7 +11,7 @@ public class Planet extends SpaceObject{
     public Planet(Vector2 position, float radius, String name) {
         super(position, radius, name);
 
-        if (radius < 2)
+        if (radius <= 5)
             color = Color.BROWN;
         else
             color = Color.GREEN;

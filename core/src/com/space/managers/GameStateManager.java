@@ -23,6 +23,12 @@ public class GameStateManager
         gameStates.add(SystemFactory.createRandomSystem(5));
     }
 
+    //TEST
+    public static void resetLevel() {
+        gameStates.remove(0);
+        gameStates.add(SystemFactory.createRandomSystem(5));
+    }
+
     public static void draw()
     {
         gameStates.get(currentIndex).draw(batch);

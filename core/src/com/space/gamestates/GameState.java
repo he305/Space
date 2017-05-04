@@ -9,7 +9,6 @@ public abstract class GameState
     public GameState()
     {
         this.gameStateName = this.getClass().getName();
-        init();
     }
 
     protected abstract void init();

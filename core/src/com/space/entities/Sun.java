@@ -14,7 +14,25 @@ public class Sun extends SpaceObject {
 
     public Sun(Vector2 position, float radius, String name) {
         super(position, radius, name);
-        color = Color.GOLD;
+
+        realRadius *= Constants.sunRadius;
+
+        if (radius < 0.9) {
+            color = Color.RED;
+        } else if (radius < 1.1) {
+            color = Color.GOLD;
+        } else if (radius < 1.3) {
+            color = Color.YELLOW;
+        } else if (radius < 2.1) {
+            color = Color.YELLOW;
+        } else if (radius < 7) {
+            color = Color.WHITE;
+        } else if (radius < 15) {
+            color = Color.CYAN;
+        } else {
+            color = Color.BLUE;
+        }
+
         this.mass = (float) (0.97 * Math.pow(this.radius, 0.676));
         this.radius *= Constants.sunToEarthRadius;
         this.mass *= Constants.sunToEarthMass;

@@ -24,6 +24,8 @@ public abstract class SpaceObject extends Entity
     protected ArrayList<SpaceObject> children = new ArrayList<>();
     protected double v;
     protected double rotationTime = 0;
+    protected double realRadius;
+    protected double realDistance;
 
     //ускорение времени
     protected double a = 1;
@@ -32,6 +34,7 @@ public abstract class SpaceObject extends Entity
     public SpaceObject(Vector2 position, float radius, String name) {
         super(position);
 
+        realRadius = radius * Constants.earthRadius;
         startPosition = this.position;
         this.radius = radius * Constants.radiusScale;
         this.name = name;
@@ -92,16 +95,17 @@ public abstract class SpaceObject extends Entity
     public void setParent(SpaceObject object) {
         parentObject = object;
         distanceFromParent = Math.abs(parentObject.position.x + parentObject.radius - position.x);
-        System.out.println(name + "\t" + parentObject.name + "\t" + distanceFromParent);
 
-        v = 360 / rotationTime / 60 / 24;
+        v = 360 / rotationTime / 60;
 
         /*if (mass / object.getMass() > 0.01 && mass / object.getMass() < 100) {
             v = (mass + object.getMass()) / distanceFromParent  * 60;
         } else {
             v = Constants.G * object.getMass() / distanceFromParent * 60;
         }*/
-        System.out.println(getName() + " " + v);
+
+        realDistance = distanceFromParent * Constants.earthRadius;
+        System.out.println(this.name + " " + rotationTime + " " + realRadius + " " + distanceFromParent);
 
     }
 
@@ -118,6 +122,14 @@ public abstract class SpaceObject extends Entity
             }
         }
         return null;
+    }
+
+    public SpaceObject getLastChild() {
+        return children.get(children.size() - 1);
+    }
+
+    public ArrayList<SpaceObject> getChildren() {
+        return children;
     }
 
     public void setPosition(Vector2 position) {
