@@ -47,15 +47,20 @@ public class SystemFactory {
 
         float previousPlanet = 0;
         for (int i = 0; i < maxPlanets; i++) {
-            float distance = random.nextFloat() * (10000 * (i + 1)) + previousPlanet * 2f + 8000;
+            float distance = random.nextFloat() * (10000 * (i + 1)) + previousPlanet * 2f + sun.getRadius();
             float radius = (float) (random.nextFloat() * (9.5) + 0.5);
             double rotationSpeed = Math.abs(0.0373 * distance - 336.994);
             sun.addChildrenRelatively(new Planet(new Vector2(distance, 0), radius, name + "-" + (i + 1)), rotationSpeed);
 
             previousPlanet = distance;
 
-            if (random.nextFloat() * 10 > 8 && radius > 0.8) {
-                int countMoons = random.nextInt(5) + 1;
+            if (random.nextFloat() * 10 > 1 && radius > 0.8) {
+                int countMoons;
+
+                if (radius <= 5)
+                    countMoons = random.nextInt(3) + 1;
+                else
+                    countMoons = random.nextInt(5) + 1;
 
                 SpaceObject object = sun.getLastChild();
 
@@ -63,6 +68,13 @@ public class SystemFactory {
                 for (int j = 0; j < countMoons; j++) {
                     float radiusMoon = random.nextFloat() * (radius / 2);
                     float distanceMoon = random.nextFloat() * (object.getRadius() * (i + 1)) + previousMoon + radiusMoon;
+
+                    //Math.abs(parentObject.position.x + parentObject.radius - position.x)
+                    //Может предотвратит наложение орбит (скорее нет)
+                    SpaceObject parentOfParent = object.getParent();
+                    if (Math.abs(parentOfParent.getPosition().x + parentOfParent.getRadius() - object.getPosition().x + distanceMoon) - object.getDistanceFromParent() > 0)
+                        continue;
+
                     double rotationSpeedMoon = 0.738 * Math.pow(distanceMoon, 0.7);
                     object.addChildrenRelatively(new Planet(new Vector2(distanceMoon, 0), radiusMoon, object.getName() + "-" + (j + 1)), rotationSpeedMoon);
 

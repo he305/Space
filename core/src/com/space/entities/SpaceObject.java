@@ -166,4 +166,9 @@ public abstract class SpaceObject extends Entity
             alpha = random.nextInt(361);
         }
     }
+
+    public float getDistanceFromParent()
+    {
+        return distanceFromParent;
+    }
 }
