@@ -15,8 +15,8 @@ public class SystemFactory {
     //y = 0.738*x^0.7 - old
     //y = 0.0373 * x - 336.994
 
-    final static String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    final static String numbers = "0123456789";
+    private final static String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private final static String numbers = "0123456789";
 
     public static String getRandomSystemName() {
         Random random = new Random();
@@ -46,13 +46,15 @@ public class SystemFactory {
         Sun sun = new Sun(new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2), random.nextFloat() * 4, name);
 
         float previousPlanet = 0;
+        float previousRadius = 0;
         for (int i = 0; i < maxPlanets; i++) {
-            float distance = random.nextFloat() * (10000 * (i + 1)) + previousPlanet * 2f + sun.getRadius();
+            float distance = random.nextFloat() * (10000 * (i + 1)) + previousPlanet * 2f + previousRadius * 2f + sun.getRadius();
             float radius = (float) (random.nextFloat() * (9.5) + 0.5);
             double rotationSpeed = Math.abs(0.0373 * distance - 336.994);
             sun.addChildrenRelatively(new Planet(new Vector2(distance, 0), radius, name + "-" + (i + 1)), rotationSpeed);
 
             previousPlanet = distance;
+            previousRadius = radius;
 
             if (random.nextFloat() * 10 > 1 && radius > 0.8) {
                 int countMoons;
@@ -72,8 +74,17 @@ public class SystemFactory {
                     //Math.abs(parentObject.position.x + parentObject.radius - position.x)
                     //Может предотвратит наложение орбит (скорее нет)
                     SpaceObject parentOfParent = object.getParent();
-                    if (Math.abs(parentOfParent.getPosition().x + parentOfParent.getRadius() - object.getPosition().x + distanceMoon) - object.getDistanceFromParent() > 0)
-                        continue;
+                    if (parentOfParent.getChildren().size() != 1) {
+                        if (Math.abs(distance - distanceMoon) /
+                                Math.abs(parentOfParent.getChildren().get(parentOfParent.getChildren().size() - 2).getDistanceFromParent()) < 1.5)
+                            break;
+                    }
+                    else
+                    {
+                        if (Math.abs(distance - distanceMoon) /
+                                Math.abs(distance) < 1.5)
+                            break;
+                    }
 
                     double rotationSpeedMoon = 0.738 * Math.pow(distanceMoon, 0.7);
                     object.addChildrenRelatively(new Planet(new Vector2(distanceMoon, 0), radiusMoon, object.getName() + "-" + (j + 1)), rotationSpeedMoon);

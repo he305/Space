@@ -36,6 +36,7 @@ public class Sun extends SpaceObject {
         this.mass = (float) (0.97 * Math.pow(this.radius, 0.676));
         this.radius *= Constants.sunToEarthRadius;
         this.mass *= Constants.sunToEarthMass;
+        this.radius *= 10;
         System.out.println(this.radius);
     }
 }

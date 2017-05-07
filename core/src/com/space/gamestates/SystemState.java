@@ -3,29 +3,17 @@ package com.space.gamestates;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.space.entities.SpaceObject;
 import com.space.entities.Sun;
 import com.space.managers.GameStateManager;
-
-import java.util.ArrayList;
+import com.space.menus.SystemMenu;
 
 public class SystemState extends GameState
 {
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
-    private Stage stage;
-    private Table table;
-    private TextureRegion textureRegion;
-    private Skin skin;
+    private SystemMenu menu;
 
 
     private boolean guiEnabled = false;
@@ -51,32 +39,7 @@ public class SystemState extends GameState
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
 
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-        table = new Table();
-        table.setDebug(true);
-        table.setVisible(true);
-        table.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-        table.setScale(0.1f, 0.1f);
-        table.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-
-        textureRegion = new TextureRegion(new Texture("background.png"), 0, 0, Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-        Image actor = new Image(textureRegion);
-        actor.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-        stage.addActor(actor);
-
-        skin = new Skin(Gdx.files.internal("vhs/skin/vhs-ui.json"));
-
-        ArrayList<SpaceObject> children = sun.getChildren();
-        ArrayList<Label> names = new ArrayList<>();
-        for (SpaceObject object : children) {
-            names.add(new Label(object.getName(), skin));
-            table.add(names.get(names.size() - 1)).pad(10);
-            table.row();
-        }
-
-        stage.addActor(table);
-
+        menu = new SystemMenu(sun);
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -91,8 +54,7 @@ public class SystemState extends GameState
         sun.draw(renderer);
 
         if (menuEnabled) {
-            stage.act(Gdx.graphics.getDeltaTime());
-            stage.draw();
+            menu.draw();
         }
 
         renderer.end();
