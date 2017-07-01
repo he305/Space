@@ -51,6 +51,7 @@ public abstract class SpaceObject extends Entity
             position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
             position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
             alpha += v * a;
+
         }
 
         if (children.size() != 0) {
@@ -75,6 +76,10 @@ public abstract class SpaceObject extends Entity
     public void addChildren(SpaceObject object, double rotationTime) {
         children.add(object);
         object.setUpdating(true);
+
+        Random random = new Random();
+        object.setAlpha(random.nextInt(361));
+
         object.rotationTime = rotationTime;
         object.setParent(this);
     }
@@ -82,6 +87,10 @@ public abstract class SpaceObject extends Entity
     public void addChildrenRelatively(SpaceObject object, double rotationTime) {
         children.add(object);
         object.setUpdating(true);
+
+        Random random = new Random();
+        object.setAlpha(random.nextInt(361));
+
         object.setPosition(new Vector2(this.position.x + this.getRadius() * 2 + object.position.x + object.radius, this.position.y + object.position.y));
         object.setStartPosition(object.getPosition());
         object.rotationTime = rotationTime;
@@ -161,14 +170,15 @@ public abstract class SpaceObject extends Entity
     @Override
     public void setUpdating(boolean isUpdating) {
         super.setUpdating(isUpdating);
-        if (isUpdating) {
-            Random random = new Random();
-            alpha = random.nextInt(361);
-        }
     }
 
     public float getDistanceFromParent()
     {
         return distanceFromParent;
+    }
+
+    public void setAlpha(float alpha)
+    {
+        this.alpha = alpha;
     }
 }

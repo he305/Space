@@ -5,15 +5,18 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.space.entities.SpaceObject;
 import com.space.entities.Sun;
 import com.space.managers.GameStateManager;
-import com.space.menus.SystemMenu;
+import com.space.menus.SystemContextMenu;
+
+import java.util.ArrayList;
 
 public class SystemState extends GameState
 {
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
-    private SystemMenu menu;
+    private SystemContextMenu menu;
 
 
     private boolean guiEnabled = false;
@@ -39,11 +42,26 @@ public class SystemState extends GameState
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
 
-        menu = new SystemMenu(sun);
+        menu = new SystemContextMenu(this);
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.zoom = 50;
+
+        sun.setCamera(camera);
+    }
+
+
+    public void getObjectNames(SpaceObject parent, ArrayList<String> names, int depth)
+    {
+        for (SpaceObject object : parent.getChildren())
+        {
+            names.add(new String(new char[depth]).replace('\0', '-') + object.getName());
+            if (object.getChildren().size() != 0)
+            {
+                getObjectNames(object, names, depth+1);
+            }
+        }
     }
 
     @Override
@@ -64,6 +82,12 @@ public class SystemState extends GameState
     @Override
     public void update() {
         handleInput();
+
+        if (menuEnabled)
+        {
+            menu.handleInput();
+        }
+
         sun.update();
 
         camSpeedUpdate();
@@ -82,9 +106,13 @@ public class SystemState extends GameState
 
     private void handleInput() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.N))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+        {
+            sun.setPause();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.N))
             sun.setAcceleration(30);
-        if (Gdx.input.isKeyPressed(Input.Keys.B))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.B))
             sun.setAcceleration(1);
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
             camera.position.set(sun.getPosition(), 0);
