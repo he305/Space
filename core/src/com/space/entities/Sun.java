@@ -41,7 +41,6 @@ public class Sun extends SpaceObject {
         this.radius *= Constants.sunToEarthRadius;
         this.mass *= Constants.sunToEarthMass;
         this.radius *= 10;
-        System.out.println(this.radius);
     }
 
     public void center(String name)
@@ -62,7 +61,7 @@ public class Sun extends SpaceObject {
 
                 for (SpaceObject childOfChild : child.getChildren())
                 {
-                    if (childOfChild.getName().equals(name.substring(1)))
+                    if (childOfChild.getName().equals(name))
                     {
                         camera.position.set(childOfChild.getPosition(), 0);
                         break;

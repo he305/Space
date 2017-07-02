@@ -2,26 +2,19 @@ package com.space.gamestates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.space.entities.SpaceObject;
 import com.space.entities.Sun;
 import com.space.managers.GameStateManager;
 import com.space.menus.SystemContextMenu;
+import com.space.menus.SystemContextMenuName;
 
 import java.util.ArrayList;
 
 public class SystemState extends GameState
 {
-    private ShapeRenderer renderer;
-    private OrthographicCamera camera;
     private SystemContextMenu menu;
-
-
-    private boolean guiEnabled = false;
-    private boolean menuEnabled = false;
-
 
     private Sun sun;
 
@@ -39,15 +32,7 @@ public class SystemState extends GameState
 
     protected void init()
     {
-        renderer = new ShapeRenderer();
-        renderer.setAutoShapeType(true);
-
-        menu = new SystemContextMenu(this);
-
-        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
-        camera.zoom = 50;
-
+        menu = new SystemContextMenu(this, SystemContextMenuName.TopMenu, null);
         sun.setCamera(camera);
     }
 
@@ -56,7 +41,13 @@ public class SystemState extends GameState
     {
         for (SpaceObject object : parent.getChildren())
         {
-            names.add(new String(new char[depth]).replace('\0', '-') + object.getName());
+            String objectName = new String();
+
+            for (int i = 0; i < depth; i++)
+                objectName += new String(" ");
+            objectName += object.getName();
+
+            names.add(objectName);
             if (object.getChildren().size() != 0)
             {
                 getObjectNames(object, names, depth+1);
@@ -110,17 +101,16 @@ public class SystemState extends GameState
         {
             sun.setPause();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.N))
-            sun.setAcceleration(30);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.B))
-            sun.setAcceleration(1);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.PERIOD))
+            sun.increaseAcceleration(5);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.COMMA))
+            sun.decreaseAcceleration(5);
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
             camera.position.set(sun.getPosition(), 0);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-            GameStateManager.resetLevel();
-        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            GameStateManager.getIntoGalaxy();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
             menuEnabled = !menuEnabled;

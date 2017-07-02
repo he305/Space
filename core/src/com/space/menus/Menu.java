@@ -3,18 +3,40 @@ package com.space.menus;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-public class Menu
+public abstract class Menu
 {
     protected Stage stage;
+
+    protected Menu parentMenu = null;
+    protected Menu childMenu = null;
 
     public Menu()
     {
         stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
     }
 
-    public void draw()
+    public abstract void draw();
+
+    public abstract void handleInput();
+
+    public void setChildMenu(Menu menu)
     {
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        this.childMenu = menu;
+    }
+
+    public Menu getChildMenu()
+    {
+        return childMenu;
+    }
+
+    public void setParentMenu(Menu menu)
+    {
+        this.parentMenu = parentMenu;
+    }
+
+    public Menu getParentMenu()
+    {
+        return parentMenu;
     }
 }

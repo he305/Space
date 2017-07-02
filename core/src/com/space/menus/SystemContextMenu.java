@@ -1,124 +1,80 @@
 package com.space.menus;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.Align;
 import com.space.gamestates.SystemState;
 
 import java.util.ArrayList;
 
 public class SystemContextMenu extends ContextMenu {
-    private ArrayList<String> objectNames = new ArrayList<>();
 
-    private Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
-    private TextureRegion background = new TextureRegion(new Texture("background.png"), 0, 0, Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-    private Image backgroundImage = new Image(background);
-    private Table tableNames;
+
+    private SystemContextMenuName name;
 
     private final ArrayList<String> topMenu;
 
     private SystemState state;
 
-    public SystemContextMenu(SystemState state)
+    public SystemContextMenu(SystemState state, SystemContextMenuName name, Menu parentMenu)
     {
-        super();
+        super(parentMenu);
         this.state = state;
+        this.name = name;
 
         topMenu = new ArrayList<>();
 
         topMenu.add("[i] SystemInfo");
 
-        setToDefault();
-    }
-
-    private void setToDefault()
-    {
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-
-        tableNames = new Table();
-        tableNames.setDebug(true);
-        tableNames.setVisible(true);
-        tableNames.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-        tableNames.setScale(0.1f, 0.1f);
-        tableNames.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-        stage.addActor(backgroundImage);
-        tableNames.align(Align.topLeft);
-
-        backgroundImage.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-
-        itemList = new List(skin);
-        itemList.setItems(topMenu.toArray());
+        switch (name)
+        {
+            case TopMenu:
+                itemList.setItems(topMenu.toArray());
+                break;
+            case SystemObjects:
+                ArrayList<String> objectNames = new ArrayList<>();
+                objectNames.add(state.getSun().getName());
+                state.getObjectNames(state.getSun(), objectNames, 1);
+                itemList.setItems(objectNames.toArray());
+                break;
+        }
 
         tableNames.add(itemList);
 
-        stage.addActor(tableNames);
-    }
-
-    private void showSystemInfo()
-    {
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-
-        tableNames = new Table();
-        tableNames.setDebug(true);
-        tableNames.setVisible(true);
-        tableNames.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-        tableNames.setScale(0.1f, 0.1f);
-        tableNames.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-        stage.addActor(backgroundImage);
-
-        tableNames.align(Align.topLeft);
-        backgroundImage.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
-
-        objectNames.clear();
-        objectNames.add(state.getSun().getName());
-        state.getObjectNames(state.getSun(), objectNames, 0);
-
-        itemList = new List(skin);
-
-        itemList.setItems(objectNames.toArray());
-
-        tableNames.add(itemList);
         stage.addActor(tableNames);
 
         currentIndex = 0;
-    }
-
-    public void handleInput()
-    {
-        super.handleInput();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.I))
-        {
-            showSystemInfo();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET))
-        {
-            setToDefault();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER))
-        {
-            act(itemList.getSelected().toString());
-        }
     }
 
     protected void act(String command)
     {
         System.out.println(command);
 
-        switch (command)
+        switch (name)
         {
-            case "[i] SystemInfo":
-                showSystemInfo();
+            case TopMenu:
+                switch (command)
+                {
+                    case "[i] SystemInfo":
+                        SystemContextMenu systemContextMenu = new SystemContextMenu(state, SystemContextMenuName.SystemObjects, this);
+                        this.childMenu = systemContextMenu;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case SystemObjects:
+                state.getSun().center(command.replaceAll("\\s+",""));
+                break;
+        }
+    }
+
+    protected void showInfo(String command)
+    {
+        switch (name)
+        {
+            case SystemObjects:
+                InfoMenu infoMenu = new InfoMenu(state.getSun().getChildrenByName(command.replaceAll("\\s+","")), this);
+                setChildMenu(infoMenu);
                 break;
             default:
-                state.getSun().center(command);
                 break;
         }
     }
