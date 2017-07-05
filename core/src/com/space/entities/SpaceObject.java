@@ -7,6 +7,9 @@ import com.space.tools.Constants;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.System.out;
 
 public abstract class SpaceObject extends Entity
 {
@@ -16,6 +19,10 @@ public abstract class SpaceObject extends Entity
 
     protected Color color;
     protected float mass;
+
+    protected ArrayList<Building> buildings = new ArrayList<>();
+
+    protected double minerals;
 
     protected String name;
 
@@ -29,15 +36,19 @@ public abstract class SpaceObject extends Entity
     protected double realRadius;
     protected double realDistance;
 
+    protected double averageTemperature;
+
     //ускорение времени
     protected int acceleration = 1;
 
+    protected boolean isHabit = false;
 
     public SpaceObject(Vector2 position, float radius, String name) {
         super(position);
 
         realRadius = radius * Constants.earthRadius;
         startPosition = this.position;
+
         this.radius = radius * Constants.radiusScale;
         this.name = name;
     }
@@ -53,6 +64,11 @@ public abstract class SpaceObject extends Entity
             position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
             position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
             alpha += v * acceleration;
+
+            //TODO: change this
+            for (Building building : buildings)
+                for (int i = 0; i < acceleration; i++)
+                    building.update();
 
         }
 
@@ -105,7 +121,21 @@ public abstract class SpaceObject extends Entity
 
     public void setParent(SpaceObject object) {
         parentObject = object;
-        distanceFromParent = Math.abs(parentObject.position.x + parentObject.radius - position.x);
+        distanceFromParent = Math.abs(position.x - radius/Constants.radiusScale - parentObject.position.x + parentObject.radius);
+
+        out.println(Constants.earthRadius);
+        realDistance = distanceFromParent * 1000;
+        out.println(this.name + " " + realDistance + " " + distanceFromParent);
+        if (object instanceof Sun)
+        {
+            //TODO: think should i use it or not
+            double albedo = ThreadLocalRandom.current().nextDouble(0, 1);
+
+            averageTemperature = Math.pow((((Sun) object).getLuminosity() * 0.5)/(16 * Math.PI * Math.pow(realDistance, 2) * Constants.STEFAN_BOLTZMANN_CONST), 1.0/4) - 273;
+        }
+        else
+            //TODO: should stay like this?
+            averageTemperature = object.getAverageTemperature() + ThreadLocalRandom.current().nextInt(-20, 21);
 
         v = 360 / rotationTime / 60;
 
@@ -115,7 +145,6 @@ public abstract class SpaceObject extends Entity
             v = Constants.G * object.getMass() / distanceFromParent * 60;
         }*/
 
-        realDistance = distanceFromParent * Constants.earthRadius;
     }
 
     public String getName() {
@@ -174,6 +203,11 @@ public abstract class SpaceObject extends Entity
                 child.setAcceleration(a);
             }
         }
+    }
+
+    public void addBuilding(BuildingType buildingType)
+    {
+        buildings.add(new Building(buildingType, this));
     }
 
     public int getAcceleration()
@@ -245,5 +279,28 @@ public abstract class SpaceObject extends Entity
 
     public Color getColor() {
         return color;
+    }
+
+    public double getAverageTemperature() {
+        return averageTemperature;
+    }
+
+    public double getMinerals()
+    {
+        return minerals;
+    }
+
+    public void decreaseMinerals(double delta)
+    {
+        minerals -= delta;
+    }
+
+    public boolean isHabit() {
+        return isHabit;
+    }
+
+    public ArrayList<Building> getBuildings()
+    {
+        return buildings;
     }
 }

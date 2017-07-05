@@ -58,7 +58,7 @@ public class GalaxyFactory
             }
             else
             {
-                distance_from_center = sun.getRadius() * 2 + ThreadLocalRandom.current().nextInt((int) sun.getRadius() * 2, (int) sun.getRadius() * 2 * 2)
+                distance_from_center = ThreadLocalRandom.current().nextInt((int) sun.getRadius(), (int) sun.getRadius() * 2 * 2)
                         + systems.get(i - 1).getDistance_from_center() + systems.get(i-1).getRadius()*2;
 
                 int alpha = ThreadLocalRandom.current().nextInt(0, 361);

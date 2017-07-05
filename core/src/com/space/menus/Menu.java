@@ -18,6 +18,15 @@ public abstract class Menu
 
     public abstract void draw();
 
+    public void update()
+    {
+        if (childMenu == null) {
+            handleInput();
+        }
+        else
+            childMenu.update();
+    }
+
     public abstract void handleInput();
 
     public void setChildMenu(Menu menu)

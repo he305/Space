@@ -4,43 +4,74 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Align;
+import com.space.tools.Constants;
+
+import java.util.ArrayList;
 
 public abstract class ContextMenu extends Menu
 {
     protected Stage stage;
-    protected List itemList;
+    protected ArrayList<List> itemList;
     protected int currentIndex = 0;
 
     protected Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
     protected TextureRegion background = new TextureRegion(new Texture("background.png"), 0, 0, Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
     protected Image backgroundImage = new Image(background);
-    protected Table tableNames;
+    protected int currentListIndex = 0;
+
+    protected double menuPerList;
+    //protected Table tableNames;
 
     public ContextMenu(Menu parentMenu)
     {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+        if (Gdx.graphics.getWidth() == 800)
+            menuPerList = Constants.MAX_MENU_ITEMS_800x600;
 
-        itemList = new List(skin);
+        itemList = new ArrayList<>();
 
-        tableNames = new Table();
-        tableNames.setDebug(true);
-        tableNames.setVisible(true);
-        tableNames.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-        tableNames.setScale(0.1f, 0.1f);
-        tableNames.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
         stage.addActor(backgroundImage);
-        tableNames.align(Align.topLeft);
-
         backgroundImage.setPosition(2 * Gdx.graphics.getWidth() / 3, 0);
 
         this.parentMenu = parentMenu;
+    }
+
+    protected void addList(ArrayList<String> items)
+    {
+
+        int listCount = (int) Math.ceil(items.size() / menuPerList);
+        for (int i = 0, k = 0; i < listCount; i++)
+        {
+            ArrayList<String> currentList = new ArrayList<>();
+            for (int j = 0; j < menuPerList; j++, k++) {
+                currentList.add(items.get(k));
+                if (k == items.size() - 1)
+                    break;
+            }
+
+            List list = new List(skin);
+
+            list.setPosition(2 * Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight()/20);
+            list.setBounds(2 * Gdx.graphics.getWidth() / 3,Gdx.graphics.getHeight()/20, Gdx.graphics.getWidth() / 3,18*Gdx.graphics.getHeight()/20);
+            list.setCullingArea(new Rectangle(2 * Gdx.graphics.getWidth() / 3,Gdx.graphics.getHeight()/20, Gdx.graphics.getWidth() / 3,18*Gdx.graphics.getHeight()/20));
+
+            list.setItems(currentList.toArray());
+
+            itemList.add(list);
+        }
+    }
+
+    protected void changeCurrentList(int previousIndex)
+    {
+        itemList.get(previousIndex).remove();
+
+        stage.addActor(itemList.get(currentListIndex));
     }
 
     public void draw()
@@ -55,23 +86,39 @@ public abstract class ContextMenu extends Menu
     }
 
     public void handleInput() {
-        if (childMenu == null)
-        {
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 currentIndex--;
                 if (currentIndex < 0)
-                    currentIndex = itemList.getItems().size - 1;
+                {
+                    int temp = currentListIndex;
+                    currentListIndex--;
+                    if (currentListIndex < 0)
+                        currentListIndex = itemList.size() - 1;
 
-                itemList.setSelectedIndex(currentIndex);
+                    changeCurrentList(temp);
+
+                    currentIndex = itemList.get(currentListIndex).getItems().size - 1;
+                }
+
+                itemList.get(currentListIndex).setSelectedIndex(currentIndex);
             }
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
                 currentIndex++;
 
-                if (currentIndex > itemList.getItems().size - 1)
+                if (currentIndex > itemList.get(currentListIndex).getItems().size - 1) {
                     currentIndex = 0;
 
-                itemList.setSelectedIndex(currentIndex);
+                    int temp = currentListIndex;
+                    currentListIndex++;
+                    if (currentListIndex > itemList.size() - 1)
+                        currentListIndex = 0;
+
+                    changeCurrentList(temp);
+
+                }
+
+                itemList.get(currentListIndex).setSelectedIndex(currentIndex);
 
             }
 
@@ -82,16 +129,13 @@ public abstract class ContextMenu extends Menu
             }
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                act(itemList.getSelected().toString());
+                act(itemList.get(currentListIndex).getSelected().toString());
             }
 
             //INFO
             if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
-                showInfo(itemList.getSelected().toString());
+                showInfo(itemList.get(currentListIndex).getSelected().toString());
             }
-        }
-        else
-            childMenu.handleInput();
     }
 
     protected abstract void act(String command);

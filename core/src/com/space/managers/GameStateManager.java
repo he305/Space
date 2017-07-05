@@ -21,7 +21,7 @@ public class GameStateManager
     {
         batch = spriteBatch;
         currentIndex = 0;
-        gameStates.add(GalaxyFactory.createGalaxy(100));
+        gameStates.add(GalaxyFactory.createGalaxy(50));
         //gameStates.add(SystemFactory.createSolarSystem());
         //gameStates.add(SystemFactory.createRandomSystem(5));
     }

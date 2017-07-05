@@ -1,5 +1,6 @@
 package com.space.menus;
 
+import com.space.entities.BuildingType;
 import com.space.gamestates.SystemState;
 
 import java.util.ArrayList;
@@ -22,24 +23,27 @@ public class SystemContextMenu extends ContextMenu {
         topMenu = new ArrayList<>();
 
         topMenu.add("[i] SystemInfo");
+        topMenu.add("Build");
 
         switch (name)
         {
             case TopMenu:
-                itemList.setItems(topMenu.toArray());
+                addList(topMenu);
+                //itemList.get(currentListIndex).setItems(topMenu.toArray());
                 break;
             case SystemObjects:
-                ArrayList<String> objectNames = new ArrayList<>();
-                objectNames.add(state.getSun().getName());
-                state.getObjectNames(state.getSun(), objectNames, 1);
-                itemList.setItems(objectNames.toArray());
+                ArrayList<String> objectNames = state.getObjectNames();
+                addList(objectNames);
+                break;
+            case HabitableObjects:
+                ArrayList<String> names = state.getHabitalObjects();
+                addList(names);
                 break;
         }
 
-        tableNames.add(itemList);
+        //tableNames.add(itemList);
 
-        stage.addActor(tableNames);
-
+        stage.addActor(itemList.get(0));
         currentIndex = 0;
     }
 
@@ -53,8 +57,12 @@ public class SystemContextMenu extends ContextMenu {
                 switch (command)
                 {
                     case "[i] SystemInfo":
-                        SystemContextMenu systemContextMenu = new SystemContextMenu(state, SystemContextMenuName.SystemObjects, this);
-                        this.childMenu = systemContextMenu;
+                        SystemContextMenu systemObject = new SystemContextMenu(state, SystemContextMenuName.SystemObjects, this);
+                        this.childMenu = systemObject;
+                        break;
+                    case "Build":
+                        SystemContextMenu habitableObjet  = new SystemContextMenu(state, SystemContextMenuName.HabitableObjects, this);
+                        this.childMenu = habitableObjet;
                         break;
                     default:
                         break;
@@ -63,6 +71,8 @@ public class SystemContextMenu extends ContextMenu {
             case SystemObjects:
                 state.getSun().center(command.replaceAll("\\s+",""));
                 break;
+            case HabitableObjects:
+                state.getSun().getChildrenByName(command).addBuilding(BuildingType.Mine);
         }
     }
 

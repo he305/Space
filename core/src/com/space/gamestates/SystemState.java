@@ -37,9 +37,27 @@ public class SystemState extends GameState
     }
 
 
-    public void getObjectNames(SpaceObject parent, ArrayList<String> names, int depth)
+    public ArrayList<String> getObjectNames()
     {
-        for (SpaceObject object : parent.getChildren())
+        ArrayList<String> names = new ArrayList<>();
+        names.add(sun.getName());
+        for (SpaceObject object : sun.getChildren())
+        {
+            String objectName = " ";
+            objectName += object.getName();
+            names.add(objectName);
+
+            if (object.getChildren().size() != 0)
+                for (SpaceObject childOfObject : object.getChildren())
+                {
+                    String childName = "  ";
+                    childName += childOfObject.getName();
+                    names.add(childName);
+                }
+        }
+
+        return names;
+        /*for (SpaceObject object : parent.getChildren())
         {
             String objectName = new String();
 
@@ -52,7 +70,28 @@ public class SystemState extends GameState
             {
                 getObjectNames(object, names, depth+1);
             }
+        }*/
+
+
+    }
+
+    public ArrayList<String> getHabitalObjects()
+    {
+        ArrayList<String> names = new ArrayList<>();
+        if (sun.isHabit())
+            names.add(sun.getName());
+
+        for (SpaceObject object : sun.getChildren())
+        {
+            if (object.isHabit())
+                names.add(object.getName());
+
+            if (object.getChildren().size() != 0)
+                for (SpaceObject childOfObject : object.getChildren())
+                    if (childOfObject.isHabit())
+                        names.add(childOfObject.getName());
         }
+        return names;
     }
 
     @Override
@@ -76,7 +115,7 @@ public class SystemState extends GameState
 
         if (menuEnabled)
         {
-            menu.handleInput();
+            menu.update();
         }
 
         sun.update();
@@ -97,7 +136,7 @@ public class SystemState extends GameState
 
     private void handleInput() {
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q))
         {
             sun.setPause();
         }
@@ -109,7 +148,7 @@ public class SystemState extends GameState
             camera.position.set(sun.getPosition(), 0);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P))
             GameStateManager.getIntoGalaxy();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {

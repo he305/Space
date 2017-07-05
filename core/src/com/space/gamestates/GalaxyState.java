@@ -102,7 +102,7 @@ public class GalaxyState extends GameState
         handleInput();
 
         if (menuEnabled)
-            menu.handleInput();
+            menu.update();
 
         camSpeedUpdate();
 

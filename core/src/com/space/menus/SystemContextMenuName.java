@@ -4,4 +4,5 @@ public enum SystemContextMenuName
 {
     TopMenu,
     SystemObjects,
+    HabitableObjects,
 }

@@ -23,22 +23,21 @@ public class GalaxyContextMenu extends ContextMenu
         switch (name)
         {
             case TopMenu:
-                itemList.setItems(topMenu.toArray());
+                addList(topMenu);
                 break;
             case GalaxyObjects:
                 ArrayList<String> objectNames = state.getObjectNames();
-                itemList.setItems(objectNames.toArray());
+                addList(objectNames);
                 break;
         }
-
-        tableNames.add(itemList);
-        stage.addActor(tableNames);
+        stage.addActor(itemList.get(0));
         currentIndex = 0;
 
     }
 
     @Override
     protected void act(String command) {
+        System.out.println(command);
         switch (name)
         {
             case TopMenu:
