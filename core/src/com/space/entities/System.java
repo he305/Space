@@ -15,7 +15,6 @@ public class System extends Entity
 
     SystemState systemState;
 
-    private Camera camera;
     private String name;
 
     public System(Vector2 position, Color color, float radius, float distance_from_center, SystemState state) {
@@ -44,7 +43,7 @@ public class System extends Entity
     }
 
     public void setCamera(Camera camera) {
-        this.camera = camera;
+        Camera camera1 = camera;
     }
 
     public float getRadius() {

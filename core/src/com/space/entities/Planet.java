@@ -9,8 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Planet extends SpaceObject{
 
-    boolean hasAtmospere = false;
-    int peopleCount = 0;
 
     public Planet(Vector2 position, float radius, String name) {
         super(position, radius, name);
@@ -23,32 +21,47 @@ public class Planet extends SpaceObject{
         this.radius *= Constants.planetRadiusScale;
         this.mass *= 20;
 
-        if (ThreadLocalRandom.current().nextFloat() > 0.8 && radius <= 5)
-            hasAtmospere = true;
-
-        if (hasAtmospere)
-            averageTemperature += ThreadLocalRandom.current().nextInt(30, 80);
-
         if (name.equals("Earth"))
         {
             isHabit = true;
             peopleCount = 1000;
-            minerals = 1000;
+            minerals = 100000;
         }
 
+        double rand = ThreadLocalRandom.current().nextDouble(1);
+        if (rand > 0.5)
+        {
+            pressure = ThreadLocalRandom.current().nextDouble(0, 1);
+        }
+        else if (rand > 0.2)
+        {
+            pressure = ThreadLocalRandom.current().nextDouble(1, 10);
+        }
+        else
+        {
+            pressure = ThreadLocalRandom.current().nextDouble(10, 100);
+        }
     }
 
     public void update()
     {
         super.update();
 
-        if (isHabit())
-        {
-            int r = ThreadLocalRandom.current().nextInt(0, 10);
-            int d = ThreadLocalRandom.current().nextInt(0, 10);
+        if (alpha >= 360)
+                alpha = 0;
 
-            peopleCount += r-d;
-        }
+            position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
+            position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
+            alpha += v * acceleration;
+
+            if (isHabit())
+            {
+                int r = ThreadLocalRandom.current().nextInt(0, 10);
+                int d = ThreadLocalRandom.current().nextInt(0, 10);
+
+                peopleCount += r - d;
+            }
+
     }
 
     @Override
@@ -66,9 +79,4 @@ public class Planet extends SpaceObject{
         super.draw(renderer);
 
     }
-
-    public int getPeopleCount() {
-        return peopleCount;
-    }
-
 }

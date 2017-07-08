@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public abstract class GameState
 {
-    protected String gameStateName;
+    protected final String gameStateName;
 
-    protected ShapeRenderer renderer;
-    protected OrthographicCamera camera;
+    protected final ShapeRenderer renderer;
+    protected final OrthographicCamera camera;
 
     protected boolean menuEnabled = false;
 

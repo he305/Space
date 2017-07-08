@@ -1,16 +1,15 @@
 package com.space.menus;
 
-import com.space.entities.BuildingType;
+import com.space.buildings.BuildingController;
+import com.space.buildings.BuildingType;
 import com.space.gamestates.SystemState;
+import com.space.tools.Logger;
 
 import java.util.ArrayList;
 
 public class SystemContextMenu extends ContextMenu {
 
-
     private SystemContextMenuName name;
-
-    private final ArrayList<String> topMenu;
 
     private SystemState state;
 
@@ -20,10 +19,10 @@ public class SystemContextMenu extends ContextMenu {
         this.state = state;
         this.name = name;
 
-        topMenu = new ArrayList<>();
+        ArrayList<String> topMenu = new ArrayList<>();
 
         topMenu.add("[i] SystemInfo");
-        topMenu.add("Build");
+        topMenu.add("Habits");
 
         switch (name)
         {
@@ -35,9 +34,22 @@ public class SystemContextMenu extends ContextMenu {
                 ArrayList<String> objectNames = state.getObjectNames();
                 addList(objectNames);
                 break;
+            case BuildingMenu:
+                ArrayList<String> buildingList = BuildingType.getBuildingNames();
+                addList(buildingList);
+                break;
             case HabitableObjects:
-                ArrayList<String> names = state.getHabitalObjects();
-                addList(names);
+                ArrayList<String> habitalObjects = state.getHabitalObjects();
+                if (habitalObjects.size() == 0)
+                {
+                    parentMenu.setChildMenu(null);
+                    return;
+                }
+                addList(habitalObjects);
+                break;
+            case ActionsWithHabit:
+                ArrayList<String> actions = SystemContextMenuName.ActionsWithHabitEnum.getActionsStrings();
+                addList(actions);
                 break;
         }
 
@@ -58,11 +70,11 @@ public class SystemContextMenu extends ContextMenu {
                 {
                     case "[i] SystemInfo":
                         SystemContextMenu systemObject = new SystemContextMenu(state, SystemContextMenuName.SystemObjects, this);
-                        this.childMenu = systemObject;
+                        setChildMenu(systemObject);
                         break;
-                    case "Build":
+                    case "Habits":
                         SystemContextMenu habitableObjet  = new SystemContextMenu(state, SystemContextMenuName.HabitableObjects, this);
-                        this.childMenu = habitableObjet;
+                        setChildMenu(habitableObjet);
                         break;
                     default:
                         break;
@@ -72,7 +84,43 @@ public class SystemContextMenu extends ContextMenu {
                 state.getSun().center(command.replaceAll("\\s+",""));
                 break;
             case HabitableObjects:
-                state.getSun().getChildrenByName(command).addBuilding(BuildingType.Mine);
+                SystemContextMenu actionMenu = new SystemContextMenu(state, SystemContextMenuName.ActionsWithHabit, this);
+                setChildMenu(actionMenu);
+                break;
+            case ActionsWithHabit:
+                if (command.equals(SystemContextMenuName.ActionsWithHabitEnum.Build.name()))
+                {
+                    SystemContextMenu buildingMenu = new SystemContextMenu(state, SystemContextMenuName.BuildingMenu, this);
+                    setChildMenu(buildingMenu);
+                }
+                else if (command.equals(SystemContextMenuName.ActionsWithHabitEnum.PlanetInfo.name()))
+                {
+                    SystemContextMenu parent = (SystemContextMenu) parentMenu;
+                    InfoMenu infoMenu = new InfoMenu(state.getSun().getChildrenByName(parent.getItemList().get(parent.getCurrentListIndex())
+                            .getSelected().toString().replaceAll("\\s+","")), this);
+                    setChildMenu(infoMenu);
+                }
+                else if (command.equals(SystemContextMenuName.ActionsWithHabitEnum.Buildings.name()))
+                {
+                    SystemContextMenu parent = (SystemContextMenu) parentMenu;
+                    BuildingController buildingController = state.getSun().getChildrenByName(parent.getItemList().get(parent.getCurrentListIndex())
+                            .getSelected().toString().replaceAll("\\s+","")).getBuildingController();
+                    if (buildingController.getBuildings().size() == 0)
+                    {
+                        Logger.getInstance().showInfo("No building found on " + parent.getItemList().get(parent.getCurrentListIndex()).getSelected().toString()
+                            .replaceAll("\\s+",""));
+                        return;
+                    }
+                    InfoMenu menu = new InfoMenu(buildingController, this);
+                    setChildMenu(menu);
+                }
+                break;
+            case BuildingMenu:
+                SystemContextMenu parentOfParent = (SystemContextMenu) parentMenu.getParentMenu();
+                state.getSun().getChildrenByName(parentOfParent.getItemList().get(parentOfParent.getCurrentListIndex()).getSelected().toString())
+                        .addBuilding(BuildingType.getBuildingByString(command));
+                parentMenu.setChildMenu(null);
+                break;
         }
     }
 

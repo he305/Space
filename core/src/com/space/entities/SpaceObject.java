@@ -3,9 +3,12 @@ package com.space.entities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.space.buildings.BuildingController;
+import com.space.buildings.BuildingType;
 import com.space.tools.Constants;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,28 +23,31 @@ public abstract class SpaceObject extends Entity
     protected Color color;
     protected float mass;
 
-    protected ArrayList<Building> buildings = new ArrayList<>();
-
     protected double minerals;
 
-    protected String name;
+    protected final String name;
 
     protected SpaceObject parentObject;
     protected float distanceFromParent;
     protected float alpha;
-    protected ArrayList<SpaceObject> children = new ArrayList<>();
+    protected final ArrayList<SpaceObject> children = new ArrayList<>();
     protected double v;
     protected double rotationTime = 0;
 
     protected double realRadius;
     protected double realDistance;
 
-    protected double averageTemperature;
+    protected double temperature;
 
     //ускорение времени
-    protected int acceleration = 1;
+    protected double acceleration = 1;
 
     protected boolean isHabit = false;
+    protected int peopleCount;
+
+    protected double pressure;
+
+    protected BuildingController buildingController = new BuildingController(this);
 
     public SpaceObject(Vector2 position, float radius, String name) {
         super(position);
@@ -56,25 +62,16 @@ public abstract class SpaceObject extends Entity
     @Override
     public void update() {
         //Spinning
-        if (isUpdating)
+        if (acceleration != 0)
         {
-            if (alpha >= 360)
-                alpha = 0;
+            buildingController.update();
 
-            position.x = parentObject.getPosition().x + (float) (distanceFromParent * Math.cos(Math.toRadians(alpha)));
-            position.y = parentObject.getPosition().y + (float) (distanceFromParent * Math.sin(Math.toRadians(alpha)));
-            alpha += v * acceleration;
-
-            //TODO: change this
-            for (Building building : buildings)
-                for (int i = 0; i < acceleration; i++)
-                    building.update();
-
-        }
-
-        if (children.size() != 0) {
-            for (SpaceObject object : children) {
-                object.update();
+            if (children.size() != 0)
+            {
+                for (SpaceObject object : children)
+                {
+                    object.update();
+                }
             }
         }
     }
@@ -131,11 +128,15 @@ public abstract class SpaceObject extends Entity
             //TODO: think should i use it or not
             double albedo = ThreadLocalRandom.current().nextDouble(0, 1);
 
-            averageTemperature = Math.pow((((Sun) object).getLuminosity() * 0.5)/(16 * Math.PI * Math.pow(realDistance, 2) * Constants.STEFAN_BOLTZMANN_CONST), 1.0/4) - 273;
+            temperature = Math.pow((((Sun) object).getLuminosity() * 0.5)/(16 * Math.PI * Math.pow(realDistance, 2) * Constants.STEFAN_BOLTZMANN_CONST), 1.0/4) - 273;
+
+            //TEMPORARY
+            temperature += 4.756 * this.getPressure() + 10.065;
+
         }
         else
             //TODO: should stay like this?
-            averageTemperature = object.getAverageTemperature() + ThreadLocalRandom.current().nextInt(-20, 21);
+            temperature = object.getTemperature() + ThreadLocalRandom.current().nextInt(-20, 21);
 
         v = 360 / rotationTime / 60;
 
@@ -153,7 +154,7 @@ public abstract class SpaceObject extends Entity
 
     public SpaceObject getChildrenByName(String name) {
 
-        if (name == this.name) //May be, I guess
+        if (Objects.equals(name, this.name)) //May be, I guess
             return this;
 
         if (children.size() != 0) {
@@ -195,7 +196,7 @@ public abstract class SpaceObject extends Entity
         return radius;
     }
 
-    public void setAcceleration(int a) {
+    public void setAcceleration(double a) {
         this.acceleration = a;
 
         if (children.size() != 0) {
@@ -207,10 +208,10 @@ public abstract class SpaceObject extends Entity
 
     public void addBuilding(BuildingType buildingType)
     {
-        buildings.add(new Building(buildingType, this));
+        buildingController.addBuilding(buildingType);
     }
 
-    public int getAcceleration()
+    public double getAcceleration()
     {
         return acceleration;
     }
@@ -218,7 +219,9 @@ public abstract class SpaceObject extends Entity
     public void increaseAcceleration(int inc)
     {
         if (acceleration == 0)
+        {
             acceleration = 1;
+        }
         else if (acceleration == 1)
             acceleration = 5;
         else
@@ -240,11 +243,6 @@ public abstract class SpaceObject extends Entity
             acceleration -= dec;
 
         setAcceleration(acceleration);
-    }
-
-    @Override
-    public void setUpdating(boolean isUpdating) {
-        super.setUpdating(isUpdating);
     }
 
     public float getDistanceFromParent()
@@ -281,8 +279,8 @@ public abstract class SpaceObject extends Entity
         return color;
     }
 
-    public double getAverageTemperature() {
-        return averageTemperature;
+    public double getTemperature() {
+        return temperature;
     }
 
     public double getMinerals()
@@ -299,8 +297,18 @@ public abstract class SpaceObject extends Entity
         return isHabit;
     }
 
-    public ArrayList<Building> getBuildings()
+    public BuildingController getBuildingController()
     {
-        return buildings;
+        return buildingController;
+    }
+
+    public double getPeopleCount()
+    {
+        return peopleCount;
+    }
+
+    public double getPressure()
+    {
+        return pressure;
     }
 }

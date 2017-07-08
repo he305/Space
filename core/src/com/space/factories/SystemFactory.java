@@ -7,6 +7,7 @@ import com.space.entities.SpaceObject;
 import com.space.entities.Sun;
 import com.space.gamestates.SystemState;
 import com.space.tools.Constants;
+import com.space.tools.Logger;
 
 import java.util.Random;
 
@@ -104,6 +105,7 @@ public class SystemFactory {
             }
         }
 
+        Logger.getInstance().showInfo(sun.getName() + " system was created");
         return new SystemState(name, sun);
     }
 

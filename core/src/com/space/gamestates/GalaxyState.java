@@ -13,15 +13,15 @@ import java.util.ArrayList;
 
 public class GalaxyState extends GameState
 {
-    int systemCount;
+    final int systemCount;
     ArrayList<System> systems = new ArrayList<>();
 
-    GalaxyContextMenu menu;
+    final GalaxyContextMenu menu;
 
     private float translateSpeed = 10;
     private float zoomSpeed = 1f;
 
-    String name;
+    final String name;
 
     public GalaxyState(String name, int systemCount)
     {
@@ -49,9 +49,9 @@ public class GalaxyState extends GameState
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setProjectionMatrix(camera.combined);
 
-        for (int i = 0; i < systems.size(); i++)
+        for (System system : systems)
         {
-            systems.get(i).draw(renderer);
+            system.draw(renderer);
         }
 
         if (menuEnabled) {

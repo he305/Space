@@ -18,4 +18,7 @@ public class Constants {
     public final static int MAX_MENU_ITEMS_800x600 = 27;
 
     public final static double STEFAN_BOLTZMANN_CONST = 5.6703E-8;
+
+    public final static double earthToSunDistance = 149600000;
+
 }

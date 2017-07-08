@@ -7,17 +7,15 @@ import java.util.ArrayList;
 public class GalaxyContextMenu extends ContextMenu
 {
 
-    GalaxyState state;
-    GalaxyContextMenuName name;
-
-    private final ArrayList<String> topMenu;
+    final GalaxyState state;
+    final GalaxyContextMenuName name;
 
     public GalaxyContextMenu(GalaxyState state, GalaxyContextMenuName name, Menu parentMenu) {
         super(parentMenu);
         this.state = state;
         this.name = name;
 
-        topMenu = new ArrayList<>();
+        ArrayList<String> topMenu = new ArrayList<>();
         topMenu.add("Galaxy Info");
 
         switch (name)
@@ -44,8 +42,7 @@ public class GalaxyContextMenu extends ContextMenu
                 switch (command)
                 {
                     case "Galaxy Info":
-                        GalaxyContextMenu galaxyContextMenu = new GalaxyContextMenu(state, GalaxyContextMenuName.GalaxyObjects, this);
-                        this.childMenu = galaxyContextMenu;
+                        this.childMenu = new GalaxyContextMenu(state, GalaxyContextMenuName.GalaxyObjects, this);
                         break;
                     default:
                         break;

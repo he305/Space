@@ -11,18 +11,23 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
+import com.space.buildings.Building;
+import com.space.buildings.BuildingController;
 import com.space.entities.Planet;
 import com.space.entities.SpaceObject;
+import com.space.tools.Constants;
 
 import java.util.ArrayList;
 
 public class InfoMenu extends Menu
 {
-    TextureRegion background;
-    Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
+    final TextureRegion background;
+    final Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
 
-    Label title;
-    List text;
+    final Label title;
+
+    final List list;
+    final ArrayList<Label> texts = new ArrayList<>();
 
     SpaceObject object;
 
@@ -38,7 +43,19 @@ public class InfoMenu extends Menu
         Image actor = new Image(background);
         actor.setPosition(0, 0);
         stage.addActor(actor);
-        text = new List(skin);
+
+        title = new Label("", skin);
+        title.setAlignment(Align.top);
+
+
+        list = new List(skin);
+
+        list.setPosition(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
+        list.setBounds(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10, 8 * Gdx.graphics.getWidth()/10, 8*Gdx.graphics.getHeight()/10);
+        list.setCullingArea(new Rectangle(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10, 8 * Gdx.graphics.getWidth()/10, 8*Gdx.graphics.getHeight()/10));
+
+        stage.addActor(title);
+        stage.addActor(list);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -63,40 +80,60 @@ public class InfoMenu extends Menu
 
         System.out.println(object.getName());
 
-        title = new Label(object.getName(), skin);
-        //title.setPosition(Gdx.graphics.getWidth()/2, 10);
-        //title.setAlignment(Align.top);
+        title.setText(object.getName());
 
-        ArrayList<String> data = new ArrayList<>();
-        data.add("Radius: " + object.getRealRadius());
-        data.add("Mass: " + object.getMass());
+        ArrayList<String> objectData = new ArrayList<>();
+
+        texts.add(new Label("Radius: " + object.getRealRadius(), skin));
+        texts.add(new Label("Mass: " + object.getMass(), skin));
+        if (object instanceof Planet)
+        {
+            texts.add(new Label("People: " + object.getPeopleCount(), skin));
+            texts.add(new Label("Distance from parent: " + String.valueOf(object.getRealDistance()/Constants.earthToSunDistance) + " a.e", skin));
+            texts.add(new Label("Pressure: "  + String.valueOf(((Planet) object).getPressure()), skin));
+        }
+        texts.add(new Label("Minerals: " + object.getMinerals(), skin));
+        texts.add(new Label("Temperature: " + object.getTemperature(), skin));
+
+        objectData.add("Radius: " + object.getRealRadius());
+        objectData.add("Mass: " + object.getMass());
         if (object.getParent() != null)
-            data.add("Parent:" + object.getParent().getName());
-        data.add("Average temperature: " + object.getAverageTemperature());
-        if (object instanceof Planet && ((Planet) object).isHabit())
-            data.add("People: " + ((Planet) object).getPeopleCount());
+            objectData.add("Parent: " + object.getParent().getName());
+        if (object instanceof Planet)
+            objectData.add("Distance from parent: " + String.valueOf(object.getRealDistance()/Constants.earthToSunDistance) + " a.e");
+        objectData.add("Average temperature: " + object.getTemperature());
+        if (object instanceof Planet && object.isHabit())
+            objectData.add("People: " + object.getPeopleCount());
             //data.add("Has atmosphere");
 
+        list.setItems(texts.toArray());
+    }
 
+    //For buildings on space objects
+    public InfoMenu(BuildingController buildingController, Menu parentMenu)
+    {
+        this(parentMenu);
+        SpaceObject object = buildingController.getObject();
+        title.setText(object.getName());
 
-        text.setPosition(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10);
-        text.setBounds(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10, 8 * Gdx.graphics.getWidth()/10, 8*Gdx.graphics.getHeight()/10);
-        text.setCullingArea(new Rectangle(Gdx.graphics.getWidth()/10, Gdx.graphics.getHeight()/10, 8 * Gdx.graphics.getWidth()/10, 8*Gdx.graphics.getHeight()/10));
+        ArrayList<String> data = new ArrayList<>();
+        for (Building building : buildingController.getBuildings())
+            data.add(building.toString());
 
-        text.setItems(data.toArray());
-
-        stage.addActor(title);
-        stage.addActor(text);
-        title.setAlignment(Align.top);
+        list.setItems(data.toArray());
     }
 
     public void update()
     {
         super.update();
-        title.setText(String.valueOf((int)object.getMinerals()));
 
-        //text.
-        //text.getItems().get(text.getItems().size-1) = ((Planet) object).getPeopleCount();
+        for (Label l : texts)
+        {
+            if (l.getText().substring(0, 6).equals("People"))
+                l.setText("People: " + object.getPeopleCount());
+            if (l.getText().substring(0, 6).equals("Minera"))
+                l.setText("Minerals: " + object.getMinerals());
+        }
     }
 
     public void handleInput()

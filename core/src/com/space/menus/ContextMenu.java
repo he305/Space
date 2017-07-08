@@ -15,13 +15,13 @@ import java.util.ArrayList;
 
 public abstract class ContextMenu extends Menu
 {
-    protected Stage stage;
-    protected ArrayList<List> itemList;
+    protected final Stage stage;
+    protected final ArrayList<List> itemList;
     protected int currentIndex = 0;
 
-    protected Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
-    protected TextureRegion background = new TextureRegion(new Texture("background.png"), 0, 0, Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
-    protected Image backgroundImage = new Image(background);
+    protected final Skin skin = new Skin(Gdx.files.internal("neon/skin/neon-ui.json"));
+    protected final TextureRegion background = new TextureRegion(new Texture("background.png"), 0, 0, Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight());
+    protected final Image backgroundImage = new Image(background);
     protected int currentListIndex = 0;
 
     protected double menuPerList;
@@ -141,4 +141,14 @@ public abstract class ContextMenu extends Menu
     protected abstract void act(String command);
 
     protected abstract void showInfo(String command);
+
+    public ArrayList<List> getItemList()
+    {
+        return itemList;
+    }
+
+    public int getCurrentListIndex()
+    {
+        return currentListIndex;
+    }
 }

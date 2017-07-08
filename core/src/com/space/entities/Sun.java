@@ -18,7 +18,7 @@ public class Sun extends SpaceObject {
 
     private Camera camera;
     private boolean isPaused;
-    private double luminosity;
+    private final double luminosity;
 
     public Sun(Vector2 position, float radius, String name) {
         super(position, radius, name);
@@ -28,25 +28,25 @@ public class Sun extends SpaceObject {
 
         if (radius < 0.9) {
             color = Color.RED;
-            averageTemperature = ThreadLocalRandom.current().nextInt(1726, 3226);
+            temperature = ThreadLocalRandom.current().nextInt(1726, 3226);
         } else if (radius < 1.1) {
             color = Color.GOLD;
-            averageTemperature = ThreadLocalRandom.current().nextInt(3226, 4726);
+            temperature = ThreadLocalRandom.current().nextInt(3226, 4726);
         } else if (radius < 1.3) {
             color = Color.YELLOW;
-            averageTemperature = ThreadLocalRandom.current().nextInt(4726, 5726);
+            temperature = ThreadLocalRandom.current().nextInt(4726, 5726);
         } else if (radius < 2.1) {
             color = Color.YELLOW;
-            averageTemperature = ThreadLocalRandom.current().nextInt(5726, 7226);
+            temperature = ThreadLocalRandom.current().nextInt(5726, 7226);
         } else if (radius < 7) {
             color = Color.WHITE;
-            averageTemperature = ThreadLocalRandom.current().nextInt(7226, 9726);
+            temperature = ThreadLocalRandom.current().nextInt(7226, 9726);
         } else if (radius < 15) {
             color = Color.CYAN;
-            averageTemperature = ThreadLocalRandom.current().nextInt(9726, 29726);
+            temperature = ThreadLocalRandom.current().nextInt(9726, 29726);
         } else {
             color = Color.BLUE;
-            averageTemperature = ThreadLocalRandom.current().nextInt(29726, 59726);
+            temperature = ThreadLocalRandom.current().nextInt(29726, 59726);
         }
 
 
@@ -54,7 +54,7 @@ public class Sun extends SpaceObject {
         this.radius *= Constants.sunToEarthRadius;
         this.mass *= Constants.sunToEarthMass;
         this.radius *= 10;
-        luminosity = 4 * Math.PI * Math.pow(realRadius, 2) * Constants.STEFAN_BOLTZMANN_CONST * Math.pow(averageTemperature + 273, 4);
+        luminosity = 4 * Math.PI * Math.pow(realRadius, 2) * Constants.STEFAN_BOLTZMANN_CONST * Math.pow(temperature + 273, 4);
         out.println(realRadius);
         out.println(luminosity);
     }

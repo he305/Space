@@ -1,7 +1,6 @@
 package com.space.managers;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.space.factories.GalaxyFactory;
 import com.space.factories.SystemFactory;
 import com.space.gamestates.GameState;
 import com.space.gamestates.SystemState;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public class GameStateManager
 {
-    private static List<GameState> gameStates = new ArrayList<>();
+    private static final List<GameState> gameStates = new ArrayList<>();
     private static int currentIndex;
 
     private static SpriteBatch batch;
@@ -21,8 +20,8 @@ public class GameStateManager
     {
         batch = spriteBatch;
         currentIndex = 0;
-        gameStates.add(GalaxyFactory.createGalaxy(50));
-        //gameStates.add(SystemFactory.createSolarSystem());
+        //gameStates.add(GalaxyFactory.createGalaxy(50));
+        gameStates.add(SystemFactory.createSolarSystem());
         //gameStates.add(SystemFactory.createRandomSystem(5));
     }
 

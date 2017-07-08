@@ -101,11 +101,11 @@ public class SystemState extends GameState
         renderer.setProjectionMatrix(camera.combined);
         sun.draw(renderer);
 
+        renderer.end();
+
         if (menuEnabled) {
             menu.draw();
         }
-
-        renderer.end();
 
     }
 
